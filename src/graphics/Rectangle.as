@@ -1,11 +1,12 @@
 package graphics{
-import gr.emmanuel.emBoxAS3.core.NineGrid;
-import gr.emmanuel.emBoxAS3.interfaces.INineGrid;
-import gr.emmanuel.emBoxAS3.interfaces.IRefresh;
 import flash.display.Graphics;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.geom.Point;
+
+import gr.emmanuel.emBoxAS3.core.NineGrid;
+import gr.emmanuel.emBoxAS3.interfaces.INineGrid;
+import gr.emmanuel.emBoxAS3.interfaces.IRefresh;
 
 public class Rectangle extends EventDispatcher implements INineGrid, IRefresh{
 	private var _nineGridPoint:Point;

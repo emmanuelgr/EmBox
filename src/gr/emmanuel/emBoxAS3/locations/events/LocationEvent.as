@@ -7,7 +7,7 @@ import gr.emmanuel.emBoxAS3.locations.core.LocationNode;
  * @author Emmanuel
  */
 public class LocationEvent extends Event {
-	public static const CHANGE:String = "update";
+	public static const CHANGE:String = "change";
 	public var list:Vector.<LocationNode>;
 	
 	public function LocationEvent(type:String, list:Vector.<LocationNode>) {

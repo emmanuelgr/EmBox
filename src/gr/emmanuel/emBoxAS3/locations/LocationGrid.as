@@ -1,15 +1,17 @@
 package gr.emmanuel.emBoxAS3.locations {
-import flash.display.DisplayObject;
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.EventDispatcher;
-import flash.geom.Point;
 import flash.geom.Rectangle;
+import gr.emmanuel.emBoxAS3.core.NineGrid;
 import gr.emmanuel.emBoxAS3.locations.events.LocationEvent;
 import gr.emmanuel.emBoxAS3.locations.interfaces.ILocation;
 import gr.emmanuel.emBoxAS3.locations.core.LocationNode;
+import gr.emmanuel.emBoxAS3.shapes.Frame;
+import gr.emmanuel.emBoxAS3.shapes.Margin;
+import gr.emmanuel.emBoxAS3.sprites.EmBoxSprite;
 
-[Event(name="change",type="flash.events")]
+[Event(name="change",type="gr.emmanuel.emBoxAS3.locations.events")]
 
 /**
  * ...
@@ -28,6 +30,7 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	private var _stretch:Boolean = false;
 	private var _offset:Number = 0;
 	private var _totalElements:int = 0;
+	private var _offsetPixels:Number = 0;
 	
 	private var cell_offset:uint = 0;
 	private var aNumber:Number = 0;
@@ -51,13 +54,18 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	protected var bounds_Quotient_H:Number = 0;
 	protected var bounds_Dim_Center:int = 0;
 	protected var dimension_Offset:int = 0;
-	protected var offset_inPixels:int = 0;
 	protected var available_pixels_W:Number = 0;
 	protected var available_pixels_H:Number = 0;
 	protected var padding_AddedHor:Number = 0;
 	protected var padding_AddedVer:Number = 0;
 	protected var margin_AddedHor:Number = 0;
 	protected var margin_AddedVer:Number = 0;
+	
+	private var debug_margin:Margin;
+  private var debug_bbox:Frame;
+  private var debugRemainingWidth:EmBoxSprite;
+  private var debugRemainingHeigth:EmBoxSprite;
+  private var debugFlag:Boolean= false;
 	
 	public function LocationGrid(bound:Rectangle, tileW:Number, tileH:Number, totalElements:int, stage:Stage) {
 		this.stage = stage;
@@ -68,7 +76,21 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		this.stage = stage;
 		super();
 		invalidate();
-	}
+  }
+  public function debug(stage:Stage):void {
+    if (!debugFlag) {
+			debugFlag = true
+      debug_margin = new Margin( _bound.width, _bound.height, _marginHor, _marginVer, 0x45074B, 0.5, NineGrid.TopLeft);
+      //debug_bbox = new EmBoxSprite( 0, 0, null, 0xFFFFFF, 0.1 );
+      debug_bbox = new Frame( 0, 0, 1, 0x3AAEE7, 0.5, NineGrid.TopLeft );
+      debugRemainingWidth = new EmBoxSprite( 0, 10, null, 0xff0000, 0.5 );
+      debugRemainingHeigth = new EmBoxSprite( 10, 0, null, 0x00ff00, 0.5 );
+			stage.addChild(debug_margin);
+			stage.addChild(debug_bbox)
+			stage.addChild(debugRemainingWidth)
+			stage.addChild(debugRemainingHeigth)
+    }
+  }
 	
 	protected function col(index:int):Number {
 		if (layHoriz) {
@@ -169,12 +191,29 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		if (!layHoriz) {
 			dimension_Offset = col(totalElements * _offset);
 			bounds_Dim_Center = Math.floor(bounds_Dim_Hor / 2);
-			offset_inPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Hor - bounds_Dim_Hor) * cell_Final_W;
+			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Hor - bounds_Dim_Hor) * cell_Final_W;
 		} else {
 			dimension_Offset = row(totalElements * _offset);
 			bounds_Dim_Center = Math.floor(bounds_Dim_Ver / 2);
-			offset_inPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Ver - bounds_Dim_Ver) * cell_Final_H;
+			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Ver - bounds_Dim_Ver) * cell_Final_H;
 		}
+		
+    if(debugFlag) {
+			debug_margin.x = _bound.x;
+			debug_margin.y = _bound.y;
+			debug_margin.width = _bound.width;
+			debug_margin.height = _bound.height;
+      debug_bbox.x = debug_margin.x + marginHor;
+      debug_bbox.y = debug_margin.y + marginVer;
+      debug_bbox.width = bbox_W;
+      debug_bbox.height = bbox_H;
+      debugRemainingWidth.x = debug_bbox.x + debug_bbox.width ;
+      debugRemainingWidth.y = debug_bbox.y ;
+      debugRemainingWidth.width = available_pixels_W;
+      debugRemainingHeigth.x = debug_bbox.x ;
+      debugRemainingHeigth.y = debug_bbox.y + debug_bbox.height ;
+      debugRemainingHeigth.height = available_pixels_H;
+    }
 	}
 	
 	private function refreshAllNodes(event:Event = null):void {
@@ -209,8 +248,8 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		aLocationNode.xSnapped += padding_AddedHor;
 		aLocationNode.ySnapped += padding_AddedVer;
 		// add the offset  of the index
-		aLocationNode.xSnapped += !layHoriz ? offset_inPixels : 0;
-		aLocationNode.ySnapped += layHoriz ? offset_inPixels : 0;
+		aLocationNode.xSnapped += !layHoriz ? _offsetPixels : 0;
+		aLocationNode.ySnapped +=  layHoriz ? _offsetPixels : 0;
 		
 		// Push outside
 		if (_pushOutside) {
@@ -254,6 +293,20 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		}
 	}
 	
+	
+	public function get offsetPixels():Number {
+		return _offsetPixels;
+	}
+	
+	public function set offsetPixels(value:Number):void {
+		if (layHoriz) {
+			_offset += value/bbox_H;
+		}else {
+			_offset += value/bbox_W;
+		}
+		invalidate();
+	}
+	
 	public function scroll(value:Number):void {
 		var r:Number;
 		var n:Number;
@@ -286,7 +339,6 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	public function set offsetIndex(value:int):void {
 		value = clamp(value, 0, totalElements - 1);
 		_offset = value / totalElements;
-		trace("LocationGrid._offset: " + _offset);
 		invalidate();
 	}
 	

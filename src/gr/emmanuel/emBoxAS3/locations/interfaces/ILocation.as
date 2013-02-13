@@ -1,6 +1,4 @@
 package gr.emmanuel.emBoxAS3.locations.interfaces {
-import flash.display.DisplayObject;
-import flash.display.DisplayObjectContainer;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 import flash.geom.Rectangle;
