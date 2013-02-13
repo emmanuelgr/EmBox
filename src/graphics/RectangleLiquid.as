@@ -1,11 +1,11 @@
 package graphics {
 import graphics.Rectangle;
-import gr.emmanuel.utils.Maths;
+import gr.emmanuel.emBoxAS3.utils.Maths;
 import flash.display.DisplayObject;
 import flash.display.Graphics;
 import flash.display.Stage;
 import flash.events.Event;
-import gr.emmanuel.actions.OnOffStage;
+import gr.emmanuel.emBoxAS3.actions.OnOffStage;
 
 /**
  * Resizable Container
