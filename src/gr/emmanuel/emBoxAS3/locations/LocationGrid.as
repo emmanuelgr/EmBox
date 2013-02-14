@@ -38,16 +38,16 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	private var list:Vector.<LocationNode>;
 	private var aLocationNode:LocationNode;
 	
-	protected var bbox_Dim_Hor:uint = 0;
-	protected var bbox_Dim_Ver:uint = 0;
+	protected var bbox_Columns:uint = 0;
+	protected var bbox_Rows:uint = 0;
 	protected var bbox_W:Number = 0;
 	protected var bbox_H:Number = 0;
-	protected var cell_W:Number = 0;
-	protected var cell_H:Number = 0;
+	protected var cell_Min_W:Number = 0;
+	protected var cell_Min_H:Number = 0;
 	protected var cell_Final_W:Number = 0;
 	protected var cell_Final_H:Number = 0;
-	protected var bounds_Dim_Hor:uint = 0;
-	protected var bounds_Dim_Ver:uint = 0;
+	protected var bounds_Columns:uint = 0;
+	protected var bounds_Rows:uint = 0;
 	protected var bounds_Available_W:Number = 0;
 	protected var bounds_Available_H:Number = 0;
 	protected var bounds_Quotient_W:Number = 0;
@@ -56,10 +56,10 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	protected var dimension_Offset:int = 0;
 	protected var available_pixels_W:Number = 0;
 	protected var available_pixels_H:Number = 0;
-	protected var padding_AddedHor:Number = 0;
-	protected var padding_AddedVer:Number = 0;
-	protected var margin_AddedHor:Number = 0;
-	protected var margin_AddedVer:Number = 0;
+	protected var padding_Final_Hor:Number = 0;
+	protected var padding_Final_Ver:Number = 0;
+	protected var margin_Final_Hor:Number = 0;
+	protected var margin_Final_Ver:Number = 0;
 	
 	private var debug_margin:Margin;
   private var debug_bbox:Frame;
@@ -94,18 +94,18 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	
 	protected function col(index:int):Number {
 		if (layHoriz) {
-			aNumber = index % bounds_Dim_Hor;
+			aNumber = index % bounds_Columns;
 		} else {
-			aNumber = Math.floor(index / bounds_Dim_Ver);
+			aNumber = Math.floor(index / bounds_Rows);
 		}
 		return aNumber;
 	}
 	
 	protected function row(index:int):Number {
 		if (layHoriz) {
-			aNumber = Math.floor(index / bounds_Dim_Hor);
+			aNumber = Math.floor(index / bounds_Columns);
 		} else {
-			aNumber = index % bounds_Dim_Ver;
+			aNumber = index % bounds_Rows;
 		}
 		return aNumber;
 	}
@@ -123,79 +123,86 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	
 	private function refreshLayout():void {
 		
-		cell_W = _tileW + _paddingHor;
-		cell_H = _tileH + _paddingVer;
+		cell_Min_W = _tileW + _paddingHor;
+		cell_Min_H = _tileH + _paddingVer;
 		
 		bounds_Available_W = _bound.width - _marginHor * 2;
 		bounds_Available_H = _bound.height - _marginVer * 2;
 		
-		bounds_Quotient_W = bounds_Available_W / cell_W;
-		bounds_Quotient_H = bounds_Available_H / cell_H;
+		bounds_Quotient_W = bounds_Available_W / cell_Min_W;
+		bounds_Quotient_H = bounds_Available_H / cell_Min_H;
 		
 		// the dimention of the _bound
-		bounds_Dim_Hor = Math.floor(bounds_Quotient_W);
-		bounds_Dim_Ver = Math.floor(bounds_Quotient_H);
+		bounds_Columns = Math.floor(bounds_Quotient_W);
+		bounds_Rows = Math.floor(bounds_Quotient_H);
 		
 		// the bounding box of the cells
 		if (layHoriz) {
-			bbox_W = Math.min(bounds_Dim_Hor, totalElements) * cell_W;
-			bbox_H = Math.ceil(totalElements / bounds_Dim_Hor) * cell_H;
+			bbox_W = Math.min(bounds_Columns, totalElements) * cell_Min_W;
+			bbox_H = Math.ceil(totalElements / bounds_Columns) * cell_Min_H;
 		} else {
-			bbox_H = Math.min(bounds_Dim_Ver, totalElements) * cell_H;
-			bbox_W = Math.ceil(totalElements / bounds_Dim_Ver) * cell_W;
+			bbox_H = Math.min(bounds_Rows, totalElements) * cell_Min_H;
+			bbox_W = Math.ceil(totalElements / bounds_Rows) * cell_Min_W;
 		}
 		
 		// the dimention of the bbox
-		bbox_Dim_Hor = Math.floor(bbox_W / cell_W);
-		bbox_Dim_Ver = Math.floor(bbox_H / cell_H);
+		bbox_Columns = Math.floor(bbox_W / cell_Min_W);
+		bbox_Rows = Math.floor(bbox_H / cell_Min_H);
 		
 		// remaining pixels
 		available_pixels_W = bounds_Available_W - bbox_W;
 		available_pixels_H = bounds_Available_H - bbox_H;
 		
 		// Stretch calculations for the value of pixels to add to padding;
-		padding_AddedHor = 0;
-		padding_AddedVer = 0;
-		margin_AddedVer = 0;
-		margin_AddedHor = 0;
+		padding_Final_Hor = 0;
+		padding_Final_Ver = 0;
+		margin_Final_Ver = 0;
+		margin_Final_Hor = 0;
 		
-		if (available_pixels_W > 0) {
-			if (stretch) {
-				padding_AddedHor = available_pixels_W / (bbox_Dim_Hor + 1);
-			} else {
-				margin_AddedHor = available_pixels_W / 2;
+		
+		if (stretch) {
+			 //calc padding to be added so tiles are occupying the available area
+			if (layHoriz && available_pixels_W > 0) {
+				
+				padding_Final_Hor = available_pixels_W / (bbox_Columns + 1);
+				
+			}else if (!layHoriz && available_pixels_H > 0) {
+				
+				padding_Final_Ver = available_pixels_H / (bbox_Rows + 1);
 			}
-		} else {
-			padding_AddedHor = (bounds_Quotient_W - bounds_Dim_Hor) * cell_W / (bounds_Dim_Hor + 1);
+			
+		}else {
+			 //calc margin to be added so tiles are centered
+			if (layHoriz && available_pixels_W > 0) {
+				
+				margin_Final_Hor = available_pixels_W / 2;
+				
+			}else if (!layHoriz && available_pixels_H > 0) {
+				
+				margin_Final_Ver = available_pixels_H / 2;
+				
+			}
 		}
 		
-		if (available_pixels_H > 0) {
-			if (stretch) {
-				padding_AddedVer = available_pixels_H / (bbox_Dim_Ver + 1);
-			} else {
-				margin_AddedVer = available_pixels_H / 2;
-			}
-		} else {
-			padding_AddedVer = (bounds_Quotient_H - bounds_Dim_Ver) * cell_H / (bounds_Dim_Ver + 1);
-		}
+		
+			//padding_Final_Hor = (bounds_Quotient_W - bounds_Columns) * cell_Min_W / (bounds_Columns + 1);
+			//padding_Final_Ver = (bounds_Quotient_H - bounds_Rows) * cell_Min_H / (bounds_Rows + 1);
 		
 		// calc the final size of an element to be mult by the col and row index
-		cell_Final_W = _tileW;
-		cell_Final_H = _tileH;
-		cell_Final_W += _paddingHor;
-		cell_Final_H += _paddingVer;
-		cell_Final_W += padding_AddedHor;
-		cell_Final_H += padding_AddedVer;
+		cell_Final_W = cell_Min_W;
+		cell_Final_H = cell_Min_H;
+		cell_Final_W += padding_Final_Hor;
+		cell_Final_H += padding_Final_Ver;
 		
 		// calc offset
 		if (!layHoriz) {
 			dimension_Offset = col(totalElements * _offset);
-			bounds_Dim_Center = Math.floor(bounds_Dim_Hor / 2);
-			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Hor - bounds_Dim_Hor) * cell_Final_W;
+			bounds_Dim_Center = Math.floor(bounds_Columns / 2);
+			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Columns - bounds_Columns) * cell_Final_W;
 		} else {
 			dimension_Offset = row(totalElements * _offset);
-			bounds_Dim_Center = Math.floor(bounds_Dim_Ver / 2);
-			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Dim_Ver - bounds_Dim_Ver) * cell_Final_H;
+			bounds_Dim_Center = Math.floor(bounds_Rows / 2);
+			_offsetPixels = -clamp(dimension_Offset - bounds_Dim_Center, 0, bbox_Rows - bounds_Rows) * cell_Final_H;
 		}
 		
     if(debugFlag) {
@@ -235,18 +242,18 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		aLocationNode.x += _paddingHor / 2;
 		aLocationNode.y += _paddingVer / 2;
 		// add the calculated margin
-		aLocationNode.x += margin_AddedHor;
-		aLocationNode.y += margin_AddedVer;
+		aLocationNode.x += margin_Final_Hor;
+		aLocationNode.y += margin_Final_Ver;
 		// add the offset  of the index
-		aLocationNode.x += !layHoriz ?  (bbox_W  ) * -_offset: 0;
-		aLocationNode.y +=  layHoriz ?  (bbox_H  ) * -_offset: 0;
+		aLocationNode.x += !layHoriz ?  (available_pixels_W  ) * _offset: 0;
+		aLocationNode.y +=  layHoriz ?  (available_pixels_H  ) * _offset: 0;
 		
 		// set the snapped coords to the the non snapped ones
 		aLocationNode.xSnapped = aLocationNode.x;
 		aLocationNode.ySnapped = aLocationNode.y;
 		// add the calculated padding
-		aLocationNode.xSnapped += padding_AddedHor;
-		aLocationNode.ySnapped += padding_AddedVer;
+		aLocationNode.xSnapped += padding_Final_Hor;
+		aLocationNode.ySnapped += padding_Final_Ver;
 		// add the offset  of the index
 		aLocationNode.xSnapped += !layHoriz ? _offsetPixels : 0;
 		aLocationNode.ySnapped +=  layHoriz ? _offsetPixels : 0;
@@ -300,9 +307,9 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	
 	public function set offsetPixels(value:Number):void {
 		if (layHoriz) {
-			_offset += value/bbox_H;
+			offset += value / bound.height;
 		}else {
-			_offset += value/bbox_W;
+			offset += value / bound.width;
 		}
 		invalidate();
 	}
@@ -311,10 +318,10 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 		var r:Number;
 		var n:Number;
 		if (!layHoriz) {
-			r = value / bbox_Dim_Hor;
+			r = value / bbox_Columns;
 			n = (bounds_Available_W - cell_Final_W) / 2 / bbox_W;
 		} else {
-			r = value / bbox_Dim_Ver;
+			r = value / bbox_Rows;
 			n = (bounds_Available_H - cell_Final_H) / 2 / bbox_H;
 		}
 		_offset = clamp(_offset + r, n, 1 - n);
@@ -326,8 +333,9 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	}
 	
 	public function set offset(value:Number):void {
-		if (0 > value || value > 1)
-			value = wrap(value, 1);
+		value = clamp(value, 0, 1);
+		//if (0 > value || value > 1)
+			//value = wrap(value, 1);
 		_offset = value;
 		invalidate();
 	}
