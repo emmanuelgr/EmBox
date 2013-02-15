@@ -341,12 +341,12 @@ public class LocationGrid extends EventDispatcher implements ILocation {
 	}
 	
 	public function get offsetIndex():int {
-		return _offset * totalElements;
+		return _offset * (totalElements-1);
 	}
 	
 	public function set offsetIndex(value:int):void {
-		value = clamp(value, 0, totalElements - 1);
-		_offset = value / totalElements;
+		value = clamp(value, 0, (totalElements-1) );
+		_offset = value / (totalElements-1);
 		invalidate();
 	}
 	

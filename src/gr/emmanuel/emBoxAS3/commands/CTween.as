@@ -1,8 +1,9 @@
 package gr.emmanuel.emBoxAS3.commands {
+import flash.events.TimerEvent;
+import flash.utils.Timer;
+
+import gr.emmanuel.emBoxAS3.motion.Ease;
 import gr.emmanuel.emBoxAS3.utils.Maths;
-import gr.emmanuel.emBoxAS3.utils.Objects;
-import flash.events.*;
-import flash.utils.*;
 
 public class CTween extends ACommand {
 	
@@ -23,11 +24,11 @@ public class CTween extends ACommand {
 	public var varsOrig:Object = {};
 	
 	public function CTween(object:Object, varsIn:Object = null, timeIn:Number = 0.9, ease4In:Function = null, fnIn:Function = null, powerIn:Number = 2, varsOut:Object = null, timeOut:Number = 0.6, ease4Out:Function = null, fnOut:Function = null, powerOut:Number = 2) {
-		this.ease4In = ease4In || Maths.easeInOut;
-		this.fnIn = fnIn || Maths.ezExpo;
+		this.ease4In = ease4In || Ease.easeInOut;
+		this.fnIn = fnIn || Ease.ezExpo;
 		this.powerIn = powerIn;
-		this.ease4Out = ease4Out || Maths.easeInOut;
-		this.fnOut = fnOut || Maths.ezExpo;
+		this.ease4Out = ease4Out || Ease.easeInOut;
+		this.fnOut = fnOut || Ease.ezExpo;
 		this.powerOut = powerOut;
 		this.object = object;
 		this.timeIn = timeIn;

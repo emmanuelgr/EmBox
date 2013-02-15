@@ -123,56 +123,7 @@ public class Maths {
 		output = output * 2 - 1;
 		return -output;
 	}
-	
-	/*//////////////////////////////////////////////////////////////////////////////////////////////////*/ /*//////////////////////////////////////    Easing   /////////////////////////////////////*/ /*//////////////////////////////////////////////////////////////////////////////////////////////////*/
-	
-	public static function easeIn(v:Number, p:Number, f:Function = null):Number {
-		if (f == null)
-			f = Maths.ezPower;
-		return f(v, p);
-	}
-	
-	public static function easeOut(v:Number, p:Number, f:Function = null):Number {
-		return 1 - easeIn(1 - v, p, f);
-	}
-	
-	public static function easeInOut(v:Number, p:Number, f:Function = null):Number {
-		if (v < .5)
-			return easeIn(v * 2, p, f) / 2;
-		return .5 + easeOut((v - .5) * 2, p, f) / 2;
-	}
-	
-	public static function easeOutIn(v:Number, p:Number, f:Function = null):Number {
-		if (v < .5)
-			return easeOut(v * 2, p, f) / 2;
-		return .5 + easeIn((v - .5) * 2, p, f) / 2;
-	}
-	
-	public static function ezSine(v:Number, p:Number):Number {
-		v = 1 - Math.cos(v * Math.PI / 2);
-		if (p > 1)
-			return easeIn(v, --p, ezSine);
-		return v;
-	}
-	
-	public static function ezExpo(v:Number, p:Number):Number {
-		if (v == 0 || v == 1)
-			return v;
-		if (p < 1)
-			p = 1;
-		return Math.pow(p, 10 * (v - 1));
-	}
-	
-	public static function ezPower(v:Number, p:Number):Number {
-		return Math.pow(v, p);
-	}
-	
-	public static function ezCirc(v:Number, p:Number):Number {
-		v = -(Math.sqrt(1 - v * v) - 1);
-		if (p > 1)
-			return easeIn(v, --p, ezCirc);
-		return v;
-	}
+
 	
 	public static function mapIndexToGrid(index:uint, length:uint, resolutionY:uint):Point {
 		var totalPixels:uint = length * resolutionY;
@@ -189,29 +140,8 @@ public class Maths {
 		return index
 	}
 	
-	/**
-	 * Takes time in seconds and returns a string in a time code
-	 * format of hh:mm:ss.  If hours are not present, returns only
-	 * mm:ss. For example, passing a value of <code>18750</code> will
-	 * return <code>05:12:30</code>, but passing a value of <code>31</code>
-	 * will return <code>00:31</code>. So in other words, minutes and seconds
-	 * will always be present.
-	 */
-	public static function formatAsTimeCode(sec:Number):String {
-		var h:Number = Math.floor(sec / 3600);
-		h = isNaN(h) ? 0 : h;
-		
-		var m:Number = Math.floor((sec % 3600) / 60);
-		m = isNaN(m) ? 0 : m;
-		
-		var s:Number = Math.floor((sec % 3600) % 60);
-		s = isNaN(s) ? 0 : s;
-		
-		return (h == 0 ? "" : (h < 10 ? "0" + h.toString() + ":" : h.toString() + ":")) + (m < 10 ? "0" + m.toString() : m.toString()) + ":" + (s < 10 ? "0" + s.toString() : s.toString());
-	}
 	
-	//package emmanuel.com.flashdynamix.motion.plugins
-	//public class AbstractTween {
+
 	public static function smartRotate(currentAngle:Number, targetAngle:Number):Number {
 		//currentAngle = (Math.abs(currentAngle) > 360) ? (currentAngle < 0) ? currentAngle % 360 + 360 : currentAngle % 360 : currentAngle;
 		//if (currentAngle<-360) currentAngle = currentAngle % 360 + 360

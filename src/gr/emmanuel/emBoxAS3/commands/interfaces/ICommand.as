@@ -7,8 +7,8 @@ package gr.emmanuel.emBoxAS3.commands.interfaces {
 	 */
 	public interface ICommand {
 		
-		function executeIn( e:Event = null ):void ;
-		function executeOut( e:Event = null ) : void;
+		function executeIn( e:Event = null ):void;
+		function executeOut( e:Event = null ):void;
 	}
 	
 }
