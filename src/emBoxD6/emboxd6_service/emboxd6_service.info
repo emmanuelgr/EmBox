@@ -1,0 +1,5 @@
+core            = "6.x"
+dependencies[]  = services
+description     = "Provides an EmboxD6 service."
+name            = "EmboxD6 Service"
+package         = "EmboxD6"

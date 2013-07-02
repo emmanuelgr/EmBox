@@ -1,0 +1,10 @@
+name = emboxd7_service
+description = Provide methods for emboxD7 framework.
+package = Services
+core = 7.x
+php = 5.x
+
+files[] = emboxd7_service.module
+
+dependencies[] = services
+

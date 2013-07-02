@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Flex Ant Tasks Build Script" basedir="." default="swc-generate" xmlns:local="*">
+
+	<property name="SRC_DIR" value="${basedir}/src" />
+	<property name="LIB_DIR" value="${basedir}/lib" />
+	<property name="BIN_DIR" value="${basedir}/bin-ant" />
+	<property name="swc-file" value="emBox.swc" />
+
+	<!-- set the flex path if_windows-->
+	
+	<!-- laptop -->
+	<property name="FLEX_HOME" value="C:\Program Files\FlashDevelop\Tools\flexsdk" /> 
+	<!-- desktop -->
+	<!-- <property name="FLEX_HOME" value="M:\+Libs\Flex\flex_sdk_4.5.1.21328" />  --> 
+	<taskdef name="mxmlc" classpath="${FLEX_HOME}\ant\lib\flexTasks.jar" classname="flex.ant.MxmlcTask" />
+	<taskdef name="compc" classpath="${FLEX_HOME}\ant\lib\flexTasks.jar" classname="flex.ant.CompcTask" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}\ant\lib\flexTasks.jar" />
+	<!-- set the flex path if Linux-->
+	<!--<property name="FLEX_HOME" value="/media/Work/+Libs/Flex"/>
+  <taskdef name="mxmlc" classpath="/media/Work/+Libs/Flex/flex_sdk_4.1.0.16076/ant/lib/flexTasks.jar" classname="flex.ant.MxmlcTask"/>
+  <taskdef name="compc" classpath="/media/Work/+Libs/Flex/flex_sdk_4.1.0.16076/ant/lib/flexTasks.jar" classname="flex.ant.CompcTask"/>-->
+
+
+	<!-- delete and recreate the DEPLOY dir -->
+	<target name="init">
+		<delete dir="${BIN_DIR}" />
+		<mkdir dir="${BIN_DIR}" />
+	</target>
+
+	<!-- generate the swc -->
+	<target name="swc-generate" description="Compile the SWC file" depends="init">
+		<compc output="${BIN_DIR}/${swc-file}">
+			<source-path path-element="${SRC_DIR}" />
+			<include-sources dir="${SRC_DIR}/emBox" includes="*" />
+			<include-sources dir="${SRC_DIR}/emBoxD6" includes="*" />
+			<external-library-path file="${LIB_DIR}" includes="*.swc" append="true" />
+		</compc>
+		<echo>SWC created successfully</echo>
+	</target>
+
+</project>

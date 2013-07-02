@@ -1,0 +1,265 @@
+<?php
+
+
+/**
+ * Implements hook_services_resources().
+ */
+function emboxd7_service_services_resources() {
+  return array(
+    'emboxd7' => array(
+      'get' => array(
+        'callback' => '_emboxd7_service_retrieve',
+        'access callback' => '_emboxd7_service_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+        'args' => array(
+          array(
+            'name' => 'menu_name',
+            'optional' => TRUE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The name of the menu to get.',
+          ),
+        ),
+      ),
+      'mail' => array(
+        'callback' => '_emboxd7_mail',
+        'access callback' => '_emboxd7_service_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+        'args' => array(
+        	array(
+            'name' => 'to',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'string',
+            'description' => 'to email.',
+          ),
+          array(
+            'name' => 'subject',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'string',
+            'description' => 'subjcet email.',
+          ),
+          array(
+            'name' => 'body',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'string',
+            'description' => 'body email.',
+          ),
+          array(
+            'name' => 'from',
+            'optional' => FALSE,
+            'source' => 'data',
+            'type' => 'string',
+            'description' => 'Who sends email.',
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+
+
+
+
+
+function _emboxd7_mail( $body, $from) {
+// function _emboxd7_mail($to, $subject, $body, $from) {
+
+	$my_module = 'emboxd7';
+	$my_mail_token = 'bar';
+	// $to = variable_get('system_mail',NULL);
+	$to = variable_get('site_mail', 'drupal');
+	$message = array(
+	  'id' => $my_module . '_' . $my_mail_token,
+	  'to' => $to,
+	  // 'to' => 'manosss@gmail.com',
+	  // 'subject' => $subject,
+	  'subject' => "E-Mail from sites contact form",
+	  'body' => array($body.$to),
+	  'headers' => array(
+	    'From' => $from,
+	    'Sender' => $from,
+	    'Return-Path' => $from,
+	  ),
+	);
+	$system = drupal_mail_system($my_module, $my_mail_token);
+	
+	// The format function must be called before calling the mail function.
+	$message = $system->format($message);
+	
+	if ($system->mail($message)) {
+	  // Success.
+	}
+	else {
+	  // Failure.
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * CRUD retrieve callback.
+ */
+function _emboxd7_service_retrieve($menu_name) {
+  $out = array();
+  
+  $out['site_name'] = variable_get('site_name', 'drupal');
+  $out['site_frontpage'] = variable_get('site_frontpage', 'drupal');
+  $out['site_mail'] = variable_get('site_mail', 'drupal');
+  $out['site_slogan'] = variable_get('site_slogan', 'drupal');
+  $out['site_mission'] = variable_get('site_mission', 'drupal');
+  $out['site_footer'] = variable_get('site_footer', 'drupal');
+  
+  $out['vocabularies'] = taxonomy_get_vocabularies();
+  foreach ($out['vocabularies'] as $vocab) {
+    $temp_terms = taxonomy_get_tree($vocab->vid);
+    foreach ($temp_terms as $term) {
+      $out['terms'][] = $term;
+    }
+    
+  }
+  
+  $nodes = array();
+  $result = db_query("SELECT nid FROM {node}");
+  foreach ($result as $record) {
+    $node = node_load($record->nid);
+    $node->href = 'node/'.$node->nid;
+    $node->path = drupal_get_path_alias($node->href);
+    $nodes[] = $node;
+  }
+  $out['nodes'] =$nodes;
+  
+  // if ($menu_name === NULL || trim($menu_name) === '') {
+    // $menu_name = 'main-menu';
+  // }
+  // $menu = (object) menu_tree_all_data($menu_name);
+  $menu = (object) menu_build_tree($menu_name);
+  $out['menu'] = _services_menu_serialize_data($menu, $out);
+  
+  return $out;
+}
+
+/**
+ * Serializes the menu tree data.
+ *
+ * @param $data
+ *   A fully built menu tree
+ *
+ * @return
+ *   Serialized menu array
+ */
+function _services_menu_serialize_data(&$data, &$out) {
+  $menu = array();
+  foreach ($data as $item) {
+  
+    
+    $anode = new stdClass;
+    $amenu_item = new stdClass;
+    $amenu_item = (object) $item['link'];
+    $amenu_item->path = drupal_lookup_path('alias', $item['link']['link_path']);
+    if ($amenu_item->path === false){
+      $amenu_item->path = $item['link']['link_path'];
+    }
+
+    if (isset($item['below'])){
+      $amenu_item->children = _services_menu_serialize_data($item['below'], $out);
+    }
+    
+    $page_callback = $item['link']['page_callback'];
+    
+    if ($page_callback == 'i18n_taxonomy_term_page' ||  $page_callback == 'taxonomy_term_page' ){
+      $amenu_item->ref_type = 'ctype_taxonomy';
+      
+      $anode->type = 'ctype_taxonomy';
+      $anode->raw = $item['link'];//raw info from drupal for debbug here
+      $anode->href = $item['link']['href'];
+      $anode->path = $amenu_item->path;
+      $anode->mlid= $item['link']['mlid'];
+      
+      $tid = substr($item['link']['href'], 14);
+      $anode->title = $item['link']['link_title'];
+      $anode->tid = $tid;
+      $vocabulary = taxonomy_term_load($tid);
+      $anode->vocabulary = $vocabulary;
+      $anode->children_tids= taxonomy_get_children($tid, $vocabulary->vid);
+      $anode->nodes = taxonomy_select_nodes($tid);
+      $out['nodes'][] = $anode;
+      
+      // foreach($anode->nodes as $nid) {
+        // $new_menu = new stdClass;
+        // $new_menu->type = '6';
+        // $new_menu->href = 'node/'.$nid;
+        // $node_loaded = node_load($nidsstring);
+        // $new_menu->path = drupal_lookup_path('alias', $new_menu->href);
+        // $new_menu->mlid = -1;
+        // $new_menu->title = $node_loaded->title;
+        // $new_menu->plid = $amenu_item->mlid;
+        // $new_menu->ref_nid = $nid;
+        // $new_menu->ref_type = $node_loaded->type;
+        
+        // $amenu_item->children[] = $new_menu;
+      // }
+    }
+
+    elseif ($page_callback == 'node_page_view'){
+      $nidsstring = substr($item['link']['href'], 5);
+      $node_loaded = node_load($nidsstring);
+      $amenu_item->ref_nid = $nidsstring;
+      $amenu_item->ref_type = $node_loaded->type;
+      
+      foreach($out['nodes'] as $node) {
+        if ($nidsstring==$node->nid){
+          $node->mlid = $item['link']['mlid'];
+        }
+      }
+    }
+    
+    elseif ($item['link']['href'] == 'contact'){
+      
+      $amenu_item->ref_type = 'contact_form';
+      
+      $anode->title = $item['link']['link_title'];
+      $anode->type = 'ctype_contact';
+      $anode->href = $item['link']['href'];
+      $anode->path = $amenu_item->path;
+      $anode->ref_type = 'contact_form';
+      $anode->load = contact_load(1);
+      $anode->mlid = $item['link']['mlid'];
+      $out['nodes'][] = $anode;
+    }
+    
+    
+    elseif ($page_callback == 'drupal_not_found'){
+      $amenu_item->ref_type = 'drupal_not_found';
+    }
+    $menu[] = $amenu_item;
+  }
+  
+
+  
+  return $menu;
+}
+
+
+/**
+ * Access callback.
+ */
+function _emboxd7_service_access($op) {
+  return TRUE;
+}

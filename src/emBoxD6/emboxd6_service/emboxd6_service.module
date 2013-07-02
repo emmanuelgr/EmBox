@@ -1,0 +1,32 @@
+<?php
+/**
+ * Implementation of hook_service().
+ */
+function emboxd6_service_perm() {
+  return array('get menu_emmanuel information');
+}
+
+/**
+ * Implementation of hook_service().
+ */
+function emboxd6_service_service() {
+  return array(
+    array(
+      '#method'   => 'emboxd6.get',
+      '#callback' => 'emboxd6_service_get',
+      '#access arguments' => array('get menu information'),
+      '#file'             => array('file' => 'inc', 'module' => 'emboxd6_service'),
+      '#args'     => array(
+        array(
+          '#name'         => 'menu_id',
+          '#type'         => 'string',
+          '#optional'     => TRUE,
+          '#description'  => t('Menu ID. Defaults to "primary-links".')
+        )
+      ),
+      '#return' => 'array',
+      '#help'   =>
+        t('Retrieves a emboxd6 sites .')
+    )
+  );
+}

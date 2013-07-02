@@ -1,0 +1,163 @@
+$content['type']  = array (
+  'name' => 'Music',
+  'type' => 'music',
+  'description' => '',
+  'title_label' => 'Title',
+  'body_label' => '',
+  'min_word_count' => '0',
+  'help' => '',
+  'node_options' => 
+  array (
+    'status' => true,
+    'promote' => true,
+    'sticky' => false,
+    'revision' => false,
+  ),
+  'old_type' => 'music',
+  'orig_type' => '',
+  'module' => 'node',
+  'custom' => '1',
+  'modified' => '1',
+  'locked' => '0',
+);
+$content['fields']  = array (
+  0 => 
+  array (
+    'label' => 'Music File',
+    'field_name' => 'field_music',
+    'type' => 'filefield',
+    'widget_type' => 'filefield_widget',
+    'change' => 'Change basic information',
+    'weight' => '-4',
+    'file_extensions' => 'mp3',
+    'progress_indicator' => 'bar',
+    'file_path' => '',
+    'max_filesize_per_file' => '1M',
+    'max_filesize_per_node' => '',
+    'description' => '',
+    'required' => 0,
+    'multiple' => '1',
+    'list_field' => '0',
+    'list_default' => 1,
+    'description_field' => '0',
+    'op' => 'Save field settings',
+    'module' => 'filefield',
+    'widget_module' => 'filefield',
+    'columns' => 
+    array (
+      'fid' => 
+      array (
+        'type' => 'int',
+        'not null' => false,
+        'views' => true,
+      ),
+      'list' => 
+      array (
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => false,
+        'views' => true,
+      ),
+      'data' => 
+      array (
+        'type' => 'text',
+        'serialize' => true,
+        'views' => true,
+      ),
+    ),
+    'semantic_cck_settings' => 
+    array (
+      'enabled' => 0,
+      'use_widget_settings' => 0,
+      'field_element' => 'div',
+      'field_class' => '',
+      'field_prefix' => '',
+      'field_suffix' => '',
+      'label_element_above' => 'h3',
+      'label_class_above' => '',
+      'label_suffix_above' => '',
+      'label_element_inline' => 'span',
+      'label_class_inline' => '',
+      'label_suffix_inline' => ':',
+      'multiple_items_element' => 'div',
+      'multiple_items_class' => '',
+      'multiple_item_element' => 'div',
+      'multiple_item_class' => '',
+      'multiple_item_separator' => '',
+      'use_singlevalue_settings' => 0,
+      'single_item_element' => 'div',
+      'single_item_class' => '',
+      'last_every_nth' => '0',
+      'first_class' => 'first',
+      'last_class' => 'last',
+      'striping_classes' => 'odd even',
+    ),
+    'semantic_cck_widget_settings' => 
+    array (
+      'use_widget_settings' => 0,
+    ),
+    'semantic_cck_field_settings' => 
+    array (
+      'enabled' => 0,
+      'field_element' => 'div',
+      'field_class' => '',
+      'field_prefix' => '',
+      'field_suffix' => '',
+      'label_element_above' => 'h3',
+      'label_class_above' => '',
+      'label_suffix_above' => '',
+      'label_element_inline' => 'span',
+      'label_class_inline' => '',
+      'label_suffix_inline' => ':',
+      'multiple_items_element' => 'div',
+      'multiple_items_class' => '',
+      'multiple_item_element' => 'div',
+      'multiple_item_class' => '',
+      'multiple_item_separator' => '',
+      'use_singlevalue_settings' => 0,
+      'single_item_element' => 'div',
+      'single_item_class' => '',
+      'last_every_nth' => '0',
+      'first_class' => 'first',
+      'last_class' => 'last',
+      'striping_classes' => 'odd even',
+    ),
+    'display_settings' => 
+    array (
+      'weight' => '-4',
+      'parent' => '',
+      'label' => 
+      array (
+        'format' => 'hidden',
+      ),
+      'teaser' => 
+      array (
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+);
+$content['extra']  = array (
+  'title' => '-5',
+  'revision_information' => '0',
+  'author' => '-1',
+  'options' => '1',
+  'menu' => '-3',
+  'path' => '2',
+);
